@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create an Elastic Container Repository. Initial Configuration.
+  Author: Arun.Chunduru'
+
+Parameters:    # =============[ PARAMETERS ]==========================
+
+  pRepositoryName:
+    Description: Elastic Container Repository Name
+    Type: String
+  
+  pScanOnPush:
+    Description: Scan the Image On Push
+    Default: 'true'
+    Type: String
+
+Resources:     # ==============[ RESOURCES ]==========================
+
+  ECRRepository: 
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Ref pRepositoryName
+      ImageScanningConfiguration: 
+        scanOnPush: !Ref pScanOnPush	
+      RepositoryPolicyText: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              Service:
+                - 'codebuild.amazonaws.com'
+            Action: 
+              - 'ecr:GetDownloadUrlForLayer'
+              - 'ecr:BatchGetImage'
+              - 'ecr:BatchCheckLayerAvailability'
+              - 'ecr:PutImage'
+              - 'ecr:InitiateLayerUpload'
+              - 'ecr:UploadLayerPart'
+              - 'ecr:CompleteLayerUpload'
+      Tags:
+        - Key: pge.technical.contact
+          Value: auc8@pge.com      
+        - Key: pge.application.owner
+          Value: PGE ECM
+        - Key: pge.application.name
+          Value: CRMIS-Search
+        - Key: pge.module.name
+          Value: CRMIS
+          
+Outputs:      # ==============[ OUTPUTS ]==========================
+
+  ECRArn:
+    Description: Repository ARN
+    Value: !GetAtt ECRRepository.Arn			
